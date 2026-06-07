@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { FormAlert } from "@/components/ui/FormAlert";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { mapApiError, messages } from "@/lib/messages";
+import {
+  dismissToast,
+  showErrorToast,
+  showLoadingToast,
+  showSuccessToast,
+} from "@/lib/toast";
 import type { Bookmark } from "@/types/database.types";
 
 type BookmarkFormProps = {
@@ -13,15 +19,13 @@ export const BookmarkForm = ({ onCreated }: BookmarkFormProps) => {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [isPublic, setIsPublic] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
-    setSuccess(null);
     setIsLoading(true);
+
+    const toastId = showLoadingToast(messages.loading.bookmarkCreate);
 
     let response: Response;
     try {
@@ -32,7 +36,8 @@ export const BookmarkForm = ({ onCreated }: BookmarkFormProps) => {
       });
     } catch {
       setIsLoading(false);
-      setError("Connection problem. Check your internet and try again.");
+      dismissToast(toastId);
+      showErrorToast(messages.toast.networkError);
       return;
     }
 
@@ -44,14 +49,15 @@ export const BookmarkForm = ({ onCreated }: BookmarkFormProps) => {
     setIsLoading(false);
 
     if (!response.ok || !body.bookmark) {
-      setError(mapApiError(body.error, messages.bookmarks.createFailed));
+      dismissToast(toastId);
+      showErrorToast(mapApiError(body.error, messages.bookmarks.createFailed));
       return;
     }
 
     setTitle("");
     setUrl("");
     setIsPublic(false);
-    setSuccess(messages.bookmarks.created);
+    showSuccessToast(messages.bookmarks.created, { id: toastId });
     onCreated(body.bookmark);
   };
 
@@ -64,40 +70,42 @@ export const BookmarkForm = ({ onCreated }: BookmarkFormProps) => {
       <input
         type="text"
         required
+        disabled={isLoading}
         placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900"
         aria-label="Bookmark title"
       />
       <input
         type="url"
         required
+        disabled={isLoading}
         placeholder="https://example.com"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
-        className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900"
         aria-label="Bookmark URL"
       />
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
           checked={isPublic}
+          disabled={isLoading}
           onChange={(e) => setIsPublic(e.target.checked)}
           aria-label="Make bookmark public"
         />
         Public (visible on your profile)
       </label>
-      {error && <FormAlert variant="error">{error}</FormAlert>}
-      {success && <FormAlert variant="success">{success}</FormAlert>}
-      <button
+      <LoadingButton
         type="submit"
-        disabled={isLoading}
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+        isLoading={isLoading}
+        loadingLabel="Adding…"
         aria-label="Add bookmark"
+        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900"
       >
-        {isLoading ? "Adding…" : "Add bookmark"}
-      </button>
+        Add bookmark
+      </LoadingButton>
     </form>
   );
 };

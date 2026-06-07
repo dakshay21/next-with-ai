@@ -127,4 +127,19 @@ export const messages = {
     updated: "Bookmark updated.",
     deleted: "Bookmark deleted.",
   },
+  loading: {
+    signup: "Creating your account…",
+    login: "Signing you in…",
+    onboarding: "Saving your profile…",
+    logout: "Signing you out…",
+    bookmarkCreate: "Adding bookmark…",
+    bookmarkUpdate: "Saving changes…",
+    bookmarkDelete: "Deleting bookmark…",
+  },
+  toast: {
+    networkError: "Connection problem. Check your internet and try again.",
+    loginSuccess: "Welcome back!",
+    onboardingSuccess: "Profile saved! Redirecting to dashboard…",
+    logoutSuccess: "You've been signed out.",
+  },
 } as const;

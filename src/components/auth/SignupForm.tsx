@@ -4,25 +4,28 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormAlert } from "@/components/ui/FormAlert";
+import { LoadingButton } from "@/components/ui/LoadingButton";
 import { createClient } from "@/lib/supabase/client";
+import { mapAuthError, messages } from "@/lib/messages";
 import {
-  getAuthErrorAction,
-  mapAuthError,
-  messages,
-} from "@/lib/messages";
+  dismissToast,
+  showErrorToast,
+  showLoadingToast,
+  showSuccessToast,
+} from "@/lib/toast";
 
 export const SignupForm = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError(null);
     setIsLoading(true);
+
+    const toastId = showLoadingToast(messages.loading.signup);
 
     const supabase = createClient();
     const redirectUrl =
@@ -41,20 +44,27 @@ export const SignupForm = () => {
     setIsLoading(false);
 
     if (signUpError) {
-      setError(mapAuthError(signUpError.message));
+      dismissToast(toastId);
+      showErrorToast(mapAuthError(signUpError.message));
       return;
     }
 
     if (data.user && data.user.identities?.length === 0) {
-      setError(messages.signup.duplicateEmail);
+      dismissToast(toastId);
+      showErrorToast(messages.signup.duplicateEmail, {
+        description: "Use the login page if you already have an account.",
+      });
       return;
     }
 
+    showSuccessToast(messages.signup.successTitle, {
+      id: toastId,
+      description: messages.signup.successBody(email),
+      duration: 8000,
+    });
     setSuccess(true);
     router.refresh();
   };
-
-  const errorAction = error ? getAuthErrorAction(error) : null;
 
   if (success) {
     return (
@@ -79,9 +89,10 @@ export const SignupForm = () => {
           type="email"
           required
           autoComplete="email"
+          disabled={isLoading}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900"
           aria-label="Email address"
         />
       </div>
@@ -98,33 +109,23 @@ export const SignupForm = () => {
           required
           minLength={6}
           autoComplete="new-password"
+          disabled={isLoading}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900"
           aria-label="Password"
         />
         <p className="mt-1 text-xs text-zinc-500">At least 6 characters</p>
       </div>
-      {error && (
-        <FormAlert
-          variant="error"
-          action={
-            errorAction === "login"
-              ? { href: "/login", label: "Go to login" }
-              : undefined
-          }
-        >
-          {error}
-        </FormAlert>
-      )}
-      <button
+      <LoadingButton
         type="submit"
-        disabled={isLoading}
-        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        isLoading={isLoading}
+        loadingLabel="Creating account…"
         aria-label="Create account"
+        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
       >
-        {isLoading ? "Creating account…" : "Sign up"}
-      </button>
+        Sign up
+      </LoadingButton>
       <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
         Already have an account?{" "}
         <Link href="/login" className="font-medium underline">
