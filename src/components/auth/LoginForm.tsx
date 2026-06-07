@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { FormAlert } from "@/components/ui/FormAlert";
 import { createClient } from "@/lib/supabase/client";
+import {
+  getAuthErrorAction,
+  mapAuthError,
+  messages,
+} from "@/lib/messages";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -25,26 +31,34 @@ export const LoginForm = () => {
 
     if (signInError) {
       setIsLoading(false);
-      setError(signInError.message);
+      setError(mapAuthError(signInError.message));
       return;
     }
 
     if (!data.user) {
       setIsLoading(false);
-      setError("Unable to sign in. Please try again.");
+      setError(messages.login.genericFailure);
       return;
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("handle")
       .eq("id", data.user.id)
       .maybeSingle();
 
+    if (profileError) {
+      setIsLoading(false);
+      setError("We couldn't load your profile. Please try again.");
+      return;
+    }
+
     setIsLoading(false);
     router.push(profile ? "/dashboard" : "/onboarding");
     router.refresh();
   };
+
+  const errorAction = error ? getAuthErrorAction(error) : null;
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4">
@@ -82,9 +96,18 @@ export const LoginForm = () => {
         />
       </div>
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+        <FormAlert
+          variant="error"
+          action={
+            errorAction === "signup"
+              ? { href: "/signup", label: "Create an account" }
+              : errorAction === "login"
+                ? { href: "/login", label: "Try again" }
+                : undefined
+          }
+        >
           {error}
-        </p>
+        </FormAlert>
       )}
       <button
         type="submit"

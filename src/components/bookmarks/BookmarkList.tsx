@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { FormAlert } from "@/components/ui/FormAlert";
+import { mapApiError, messages } from "@/lib/messages";
 import type { Bookmark } from "@/types/database.types";
 
 type BookmarkListProps = {
@@ -19,6 +21,7 @@ export const BookmarkList = ({
   const [editUrl, setEditUrl] = useState("");
   const [editIsPublic, setEditIsPublic] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleStartEdit = (bookmark: Bookmark) => {
     setEditingId(bookmark.id);
@@ -26,6 +29,7 @@ export const BookmarkList = ({
     setEditUrl(bookmark.url);
     setEditIsPublic(bookmark.is_public);
     setError(null);
+    setSuccess(null);
   };
 
   const handleCancelEdit = () => {
@@ -35,16 +39,23 @@ export const BookmarkList = ({
 
   const handleSaveEdit = async (id: string) => {
     setError(null);
+    setSuccess(null);
 
-    const response = await fetch(`/api/bookmarks/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: editTitle,
-        url: editUrl,
-        is_public: editIsPublic,
-      }),
-    });
+    let response: Response;
+    try {
+      response = await fetch(`/api/bookmarks/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editTitle,
+          url: editUrl,
+          is_public: editIsPublic,
+        }),
+      });
+    } catch {
+      setError("Connection problem. Check your internet and try again.");
+      return;
+    }
 
     const body = (await response.json()) as {
       error?: string;
@@ -52,45 +63,51 @@ export const BookmarkList = ({
     };
 
     if (!response.ok || !body.bookmark) {
-      setError(body.error ?? "Failed to update bookmark");
+      setError(mapApiError(body.error, messages.bookmarks.updateFailed));
       return;
     }
 
     onUpdate(body.bookmark);
     setEditingId(null);
+    setSuccess(messages.bookmarks.updated);
   };
 
   const handleDelete = async (id: string) => {
     setError(null);
+    setSuccess(null);
 
-    const response = await fetch(`/api/bookmarks/${id}`, {
-      method: "DELETE",
-    });
+    let response: Response;
+    try {
+      response = await fetch(`/api/bookmarks/${id}`, {
+        method: "DELETE",
+      });
+    } catch {
+      setError("Connection problem. Check your internet and try again.");
+      return;
+    }
 
     if (!response.ok) {
       const body = (await response.json()) as { error?: string };
-      setError(body.error ?? "Failed to delete bookmark");
+      setError(mapApiError(body.error, messages.bookmarks.deleteFailed));
       return;
     }
 
     onDelete(id);
+    setSuccess(messages.bookmarks.deleted);
   };
 
   if (bookmarks.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-zinc-500">
-        No bookmarks yet. Add your first one above.
+        {messages.bookmarks.empty}
       </p>
     );
   }
 
   return (
     <div className="flex flex-col gap-3">
-      {error && (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <FormAlert variant="error">{error}</FormAlert>}
+      {success && <FormAlert variant="success">{success}</FormAlert>}
       <ul className="flex flex-col gap-2">
         {bookmarks.map((bookmark) => (
           <li

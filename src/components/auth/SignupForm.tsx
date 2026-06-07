@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { FormAlert } from "@/components/ui/FormAlert";
 import { createClient } from "@/lib/supabase/client";
+import {
+  getAuthErrorAction,
+  mapAuthError,
+  messages,
+} from "@/lib/messages";
 
 export const SignupForm = () => {
   const router = useRouter();
@@ -24,7 +30,7 @@ export const SignupForm = () => {
         ? `${window.location.origin}/auth/callback`
         : `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/auth/callback`;
 
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -35,7 +41,12 @@ export const SignupForm = () => {
     setIsLoading(false);
 
     if (signUpError) {
-      setError(signUpError.message);
+      setError(mapAuthError(signUpError.message));
+      return;
+    }
+
+    if (data.user && data.user.identities?.length === 0) {
+      setError(messages.signup.duplicateEmail);
       return;
     }
 
@@ -43,23 +54,17 @@ export const SignupForm = () => {
     router.refresh();
   };
 
+  const errorAction = error ? getAuthErrorAction(error) : null;
+
   if (success) {
     return (
-      <div className="rounded-lg border border-green-200 bg-green-50 p-6 text-center dark:border-green-900 dark:bg-green-950">
-        <h2 className="text-lg font-semibold text-green-800 dark:text-green-200">
-          Check your email
-        </h2>
-        <p className="mt-2 text-sm text-green-700 dark:text-green-300">
-          We sent a confirmation link to <strong>{email}</strong>. Click it to
-          activate your account.
-        </p>
-        <Link
-          href="/login"
-          className="mt-4 inline-block text-sm font-medium text-green-800 underline dark:text-green-200"
-        >
-          Back to login
-        </Link>
-      </div>
+      <FormAlert
+        variant="success"
+        title={messages.signup.successTitle}
+        action={{ href: "/login", label: "Back to login" }}
+      >
+        {messages.signup.successBody(email)}
+      </FormAlert>
     );
   }
 
@@ -98,11 +103,19 @@ export const SignupForm = () => {
           className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
           aria-label="Password"
         />
+        <p className="mt-1 text-xs text-zinc-500">At least 6 characters</p>
       </div>
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+        <FormAlert
+          variant="error"
+          action={
+            errorAction === "login"
+              ? { href: "/login", label: "Go to login" }
+              : undefined
+          }
+        >
           {error}
-        </p>
+        </FormAlert>
       )}
       <button
         type="submit"

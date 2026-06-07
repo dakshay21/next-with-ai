@@ -6,22 +6,49 @@ export const handleSchema = z
   .toLowerCase()
   .regex(
     /^[a-z0-9_]{3,30}$/,
-    "Handle must be 3–30 characters: lowercase letters, numbers, underscores only",
+    "Handle must be 3–30 characters using lowercase letters, numbers, and underscores only.",
   );
 
 export const createProfileSchema = z.object({
   handle: handleSchema,
-  display_name: z.string().trim().max(100).optional(),
+  display_name: z
+    .string()
+    .trim()
+    .max(100, "Display name must be 100 characters or less.")
+    .optional(),
 });
 
 export const createBookmarkSchema = z.object({
-  title: z.string().trim().min(1).max(200),
-  url: z.string().trim().url().regex(/^https?:\/\//),
+  title: z
+    .string()
+    .trim()
+    .min(1, "Title is required.")
+    .max(200, "Title must be 200 characters or less."),
+  url: z
+    .string()
+    .trim()
+    .min(1, "URL is required.")
+    .url("Enter a valid URL (e.g. https://example.com).")
+    .regex(/^https?:\/\//, "URL must start with http:// or https://."),
   is_public: z.boolean().default(false),
 });
 
 export const updateBookmarkSchema = z.object({
-  title: z.string().trim().min(1).max(200).optional(),
-  url: z.string().trim().url().regex(/^https?:\/\//).optional(),
+  title: z
+    .string()
+    .trim()
+    .min(1, "Title is required.")
+    .max(200, "Title must be 200 characters or less.")
+    .optional(),
+  url: z
+    .string()
+    .trim()
+    .min(1, "URL is required.")
+    .url("Enter a valid URL (e.g. https://example.com).")
+    .regex(/^https?:\/\//, "URL must start with http:// or https://.")
+    .optional(),
   is_public: z.boolean().optional(),
 });
+
+export const formatZodError = (error: z.ZodError): string =>
+  error.issues[0]?.message ?? "Please check your input and try again.";

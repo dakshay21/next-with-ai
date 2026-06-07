@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { FormAlert } from "@/components/ui/FormAlert";
+import { mapApiError, messages } from "@/lib/messages";
 import { handleSchema } from "@/lib/validators";
 
 export const OnboardingForm = () => {
@@ -17,27 +19,36 @@ export const OnboardingForm = () => {
 
     const parsed = handleSchema.safeParse(handle);
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Invalid handle");
+      setError(parsed.error.issues[0]?.message ?? "Please enter a valid handle.");
       return;
     }
 
     setIsLoading(true);
 
-    const response = await fetch("/api/profiles", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        handle: parsed.data,
-        display_name: displayName.trim() || undefined,
-      }),
-    });
+    let response: Response;
+    try {
+      response = await fetch("/api/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          handle: parsed.data,
+          display_name: displayName.trim() || undefined,
+        }),
+      });
+    } catch {
+      setIsLoading(false);
+      setError("Connection problem. Check your internet and try again.");
+      return;
+    }
 
     const body = (await response.json()) as { error?: string };
 
     setIsLoading(false);
 
     if (!response.ok) {
-      setError(body.error ?? "Failed to create profile");
+      setError(
+        mapApiError(body.error, messages.onboarding.saveFailed),
+      );
       return;
     }
 
@@ -83,11 +94,7 @@ export const OnboardingForm = () => {
           aria-label="Display name"
         />
       </div>
-      {error && (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <FormAlert variant="error">{error}</FormAlert>}
       <button
         type="submit"
         disabled={isLoading}

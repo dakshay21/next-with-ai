@@ -39,9 +39,16 @@ Default Supabase SMTP only sends to **org team member emails**. Sign up with an 
 
 ## Deploy (Vercel)
 
-1. Push to GitHub and import in Vercel
-2. Set env vars from `.env.example` (use production `NEXT_PUBLIC_APP_URL`)
-3. Add production `/auth/callback` to Supabase redirect URLs
+**Production URL:** https://next-with-ai-two.vercel.app
+
+1. Push to GitHub and import in Vercel (or `npx vercel deploy --prod`)
+2. Set env vars in Vercel → Project → Settings → Environment Variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+   - `NEXT_PUBLIC_APP_URL` → your Vercel URL (e.g. `https://next-with-ai-two.vercel.app`)
+3. In Supabase → Authentication → URL Configuration:
+   - **Site URL:** `https://next-with-ai-two.vercel.app`
+   - **Redirect URLs:** add `https://next-with-ai-two.vercel.app/auth/callback`
 
 ## Scripts
 

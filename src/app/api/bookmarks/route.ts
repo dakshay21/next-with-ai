@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { apiErrors } from "@/lib/messages";
 import { createClient } from "@/lib/supabase/server";
-import { createBookmarkSchema } from "@/lib/validators";
+import { createBookmarkSchema, formatZodError } from "@/lib/validators";
 
 export const GET = async () => {
   const supabase = await createClient();
@@ -9,7 +10,7 @@ export const GET = async () => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: apiErrors.unauthorized }, { status: 401 });
   }
 
   const { data, error } = await supabase
@@ -19,7 +20,7 @@ export const GET = async () => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: apiErrors.serverError }, { status: 500 });
   }
 
   return NextResponse.json({ bookmarks: data ?? [] });
@@ -32,21 +33,21 @@ export const POST = async (request: Request) => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: apiErrors.unauthorized }, { status: 401 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json({ error: apiErrors.invalidJson }, { status: 400 });
   }
 
   const parsed = createBookmarkSchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid input" },
+      { error: formatZodError(parsed.error) },
       { status: 400 },
     );
   }
@@ -63,7 +64,7 @@ export const POST = async (request: Request) => {
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: apiErrors.serverError }, { status: 500 });
   }
 
   return NextResponse.json({ bookmark: data }, { status: 201 });

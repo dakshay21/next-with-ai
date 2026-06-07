@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { apiErrors } from "@/lib/messages";
 import { createClient } from "@/lib/supabase/server";
 
 export const GET = async (
@@ -15,7 +16,10 @@ export const GET = async (
     .maybeSingle();
 
   if (profileError || !profile) {
-    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: apiErrors.profileNotFound },
+      { status: 404 },
+    );
   }
 
   const { data: bookmarks, error: bookmarksError } = await supabase
@@ -27,7 +31,7 @@ export const GET = async (
 
   if (bookmarksError) {
     return NextResponse.json(
-      { error: "Failed to fetch bookmarks" },
+      { error: apiErrors.fetchBookmarksFailed },
       { status: 500 },
     );
   }

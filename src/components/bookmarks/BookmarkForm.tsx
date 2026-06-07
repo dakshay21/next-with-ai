@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { FormAlert } from "@/components/ui/FormAlert";
+import { mapApiError, messages } from "@/lib/messages";
 import type { Bookmark } from "@/types/database.types";
 
 type BookmarkFormProps = {
@@ -12,18 +14,27 @@ export const BookmarkForm = ({ onCreated }: BookmarkFormProps) => {
   const [url, setUrl] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
+    setSuccess(null);
     setIsLoading(true);
 
-    const response = await fetch("/api/bookmarks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, url, is_public: isPublic }),
-    });
+    let response: Response;
+    try {
+      response = await fetch("/api/bookmarks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, url, is_public: isPublic }),
+      });
+    } catch {
+      setIsLoading(false);
+      setError("Connection problem. Check your internet and try again.");
+      return;
+    }
 
     const body = (await response.json()) as {
       error?: string;
@@ -33,13 +44,14 @@ export const BookmarkForm = ({ onCreated }: BookmarkFormProps) => {
     setIsLoading(false);
 
     if (!response.ok || !body.bookmark) {
-      setError(body.error ?? "Failed to create bookmark");
+      setError(mapApiError(body.error, messages.bookmarks.createFailed));
       return;
     }
 
     setTitle("");
     setUrl("");
     setIsPublic(false);
+    setSuccess(messages.bookmarks.created);
     onCreated(body.bookmark);
   };
 
@@ -76,11 +88,8 @@ export const BookmarkForm = ({ onCreated }: BookmarkFormProps) => {
         />
         Public (visible on your profile)
       </label>
-      {error && (
-        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <FormAlert variant="error">{error}</FormAlert>}
+      {success && <FormAlert variant="success">{success}</FormAlert>}
       <button
         type="submit"
         disabled={isLoading}
