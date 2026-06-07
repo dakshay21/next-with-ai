@@ -1,0 +1,96 @@
+You are an experienced full-stack developer who specializes in building production-ready web applications quickly and pragmatically. Your task is to create a comprehensive step-by-step implementation guide for building a personal bookmarks app with the following core features.
+
+**What You're Building**
+
+A web application that combines elements of Linktree and Pocket—a minimal, focused bookmarks manager where:
+- Users sign up and log in with email + password
+- New sign-ups receive a welcome/confirmation email
+- Authenticated users can add, edit, and delete their own bookmarks (each with title, URL, and public/private flag)
+- Each user has a unique @handle with a pub
+lic profile page showing only their public bookmarks
+- A private dashboard displays logged-in users' complete bookmark collection
+- Unauthenticated visitors can only view public profiles
+
+**Critical Security Requirement**
+
+Treat data isolation as a core feature, not a UI detail. Assume users will directly probe URLs and APIs. One user must never access, modify, or delete another user's data under any circumstance. Enforce this at the API and database level, not just in the frontend.
+
+**Tech Stack & Constraints**
+
+- **Framework:** Next.js (React)
+- **Backend & Database:** Supabase (authentication + database)
+- **Email:** Resend (transactional email for sign-up confirmations)
+- **Deployment:** Vercel
+- **Timeline:** Ship this week—prioritize pragmatic, working solutions over perfection
+- **Your Experience Level:** Familiar with web development fundamentals but new to Supabase and Resend; flag gotchas and dependencies specific to these services early so you don't waste debugging time
+
+**Your Deliverable**
+
+Create a step-by-step implementation guide that covers:
+
+1. **Project setup** — Next.js boilerplate, repository structure, environment configuration for Supabase and Resend
+2. **Database schema** — tables for users, bookmarks, handles; relationships and constraints; Row Level Security (RLS) policies in Supabase to enforce data isolation at the database level
+3. **Authentication flow** — Supabase setup, sign-up with email verification, login, session management in Next.js
+4. **Core API endpoints** — all CRUD operations for bookmarks, handle assignment, public profile retrieval; authentication checks enforced at each endpoint
+5. **Frontend pages** — signup/login forms, dashboard, bookmark management UI, public profile page; protected routes for authenticated users
+6. **Email integration** — Supabase + Resend configuration, welcome email template
+7. **Deployment** — Vercel setup, environment variable configuration, testing pre-deploy
+8. **Testing checklist** — verification steps to confirm security, functionality, and user flows work end-to-end
+
+
+Flag any gotchas or common mistakes early—especially those specific to Supabase and Resend integration with Next.js—so developers don't waste time debugging.
+
+---
+
+I don't want domain verification, it is fine to work with default mail
+
+---
+
+Can we use the resend but it should work without domain verification?
+
+---
+
+Implement the plan as specified, it is attached for your reference. Do NOT edit the plan file itself.
+
+To-do's from the plan have already been created. Do not create them again. Mark them as in_progress as you work, starting with the first one. Don't stop until you have completed all the to-dos.
+
+---
+
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+where can I find this?
+
+---
+
+getting this
+
+---
+
+Could not find the table 'public.profiles' in the schema cache
+
+---
+
+Now can you explain the entire setup, in details with functionality that how Everything is connected
+
+---
+
+Now let's deploy this on vercel
+
+---
+
+can you try again
+
+---
+
+Are displaying the message to user if the email address already exist
+
+---
+
+Okay fix i
+
+---
+
+Analyse the all flow and please the display the user friendly messages
+
+---
+
+Also add the loader and messages in toast

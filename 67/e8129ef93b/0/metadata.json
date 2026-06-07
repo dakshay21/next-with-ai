@@ -1,0 +1,52 @@
+{
+  "cli_version": "0.7.5",
+  "checkpoint_id": "67e8129ef93b",
+  "session_id": "0e5bfbcf-e68a-49a5-82c7-9f0d57ae1a5a",
+  "strategy": "manual-commit",
+  "created_at": "2026-06-07T05:14:17.708354966Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "package-lock.json",
+    "package.json",
+    "src/app/layout.tsx",
+    "src/components/auth/LoginForm.tsx",
+    "src/components/auth/LogoutButton.tsx",
+    "src/components/auth/OnboardingForm.tsx",
+    "src/components/auth/SignupForm.tsx",
+    "src/components/bookmarks/BookmarkForm.tsx",
+    "src/components/bookmarks/BookmarkList.tsx",
+    "src/components/providers/ToastProvider.tsx",
+    "src/components/ui/LoadingButton.tsx",
+    "src/components/ui/Spinner.tsx",
+    "src/lib/messages.ts",
+    "src/lib/toast.ts"
+  ],
+  "agent": "Cursor",
+  "model": "default",
+  "turn_id": "23bca8775591",
+  "session_metrics": {
+    "turn_count": 14
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-06-07T05:14:17.692748471Z",
+    "agent_lines": 410,
+    "agent_removed": 216,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 410,
+    "total_lines_changed": 626,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

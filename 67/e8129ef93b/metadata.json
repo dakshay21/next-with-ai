@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.7.5",
+  "checkpoint_id": "67e8129ef93b",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "package-lock.json",
+    "package.json",
+    "src/app/layout.tsx",
+    "src/components/auth/LoginForm.tsx",
+    "src/components/auth/LogoutButton.tsx",
+    "src/components/auth/OnboardingForm.tsx",
+    "src/components/auth/SignupForm.tsx",
+    "src/components/bookmarks/BookmarkForm.tsx",
+    "src/components/bookmarks/BookmarkList.tsx",
+    "src/components/providers/ToastProvider.tsx",
+    "src/components/ui/LoadingButton.tsx",
+    "src/components/ui/Spinner.tsx",
+    "src/lib/messages.ts",
+    "src/lib/toast.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/67/e8129ef93b/0/metadata.json",
+      "transcript": "/67/e8129ef93b/0/full.jsonl",
+      "content_hash": "/67/e8129ef93b/0/content_hash.txt",
+      "prompt": "/67/e8129ef93b/0/prompt.txt"
+    }
+  ]
+}
