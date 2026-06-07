@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.7.5",
+  "checkpoint_id": "e5de13622f86",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 6,
+  "files_touched": [
+    ".vercelignore",
+    "README.md",
+    "src/app/api/bookmarks/[id]/route.ts",
+    "src/app/api/bookmarks/route.ts",
+    "src/app/api/profiles/[handle]/route.ts",
+    "src/app/api/profiles/route.ts",
+    "src/components/auth/LoginForm.tsx",
+    "src/components/auth/OnboardingForm.tsx",
+    "src/components/auth/SignupForm.tsx",
+    "src/components/bookmarks/BookmarkForm.tsx",
+    "src/components/bookmarks/BookmarkList.tsx",
+    "src/components/ui/FormAlert.tsx",
+    "src/lib/messages.ts",
+    "src/lib/validators.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e5/de13622f86/0/metadata.json",
+      "transcript": "/e5/de13622f86/0/full.jsonl",
+      "content_hash": "/e5/de13622f86/0/content_hash.txt",
+      "prompt": "/e5/de13622f86/0/prompt.txt"
+    }
+  ]
+}
